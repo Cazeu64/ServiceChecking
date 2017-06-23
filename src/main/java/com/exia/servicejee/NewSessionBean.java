@@ -17,7 +17,7 @@ public class NewSessionBean {
 
     public void businessMethod() {
     }
-
+    //Test2
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
 
