@@ -11,5 +11,5 @@ package com.exia.util;
  */
 public enum ValidationStatus 
 {
-    VALIDE, INVALIDE
+    VALIDE, INVALIDE, PENDING
 }

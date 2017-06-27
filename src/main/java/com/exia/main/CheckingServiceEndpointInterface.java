@@ -5,6 +5,7 @@
  */
 package com.exia.main;
 
+import com.exia.util.TextFile;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
@@ -20,5 +21,6 @@ public interface CheckingServiceEndpointInterface
 {
     @WebMethod(operationName = "checkValidity")
     @WebResult(name = "textValidity")
-    Boolean isValideText(@WebParam(name = "textToCheck") String text);
+    Boolean addTextFile(@WebParam(name = "textToCheck") String text);
+    TextFile deleteStoredTextFile(Long id);
 }
