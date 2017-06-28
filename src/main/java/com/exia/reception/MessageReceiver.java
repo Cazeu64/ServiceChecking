@@ -43,6 +43,7 @@ public class MessageReceiver implements MessageListener {
             if(processor.processChecking(createFileFromSring(fileTxt)))
             {
                 //Stoper tous les test sur ce fichier, clef trouvé
+                
             }
         } 
         catch (JMSException ex) 
@@ -53,7 +54,12 @@ public class MessageReceiver implements MessageListener {
     
     public File createFileFromSring(String fileString)
     {
-        String[] tabString = fileString.split("|");
+        String[] tabString = fileString.split("\\|");
+
+        for(String l : tabString)
+        {
+            System.out.println("Split : " + l);
+        }
         
         File fileRet = new File();
         fileRet.setContent(tabString[0]);

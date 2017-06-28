@@ -6,7 +6,9 @@
 package com.exia.reception;
 
 import com.exia.integration.File;
+import com.traitement.persistance.dll.catalogmngmt.CatalogManagerService;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 /**
  *
@@ -15,11 +17,24 @@ import javax.ejb.Stateless;
 @Stateless
 public class Processor implements ProcessorInterface {
 
+    @Inject
+    private CatalogManagerService catalogManagerService;
+    
+    public float TAUX_CONFIANCE = (float) 0.8;
+    public float TAUX_ECHANTILLONNAGE = (float) 0.8;
+
+    public Processor() {
+
+    }
+    
     @Override
     public Boolean processChecking(File file)
     {
         //Démarrer le code de validation ici
+        
         System.out.println("Début de la vérification");
-        return true;
+        //Reconstitution de l'objet File
+        
+        return catalogManagerService.checkFile(file, TAUX_CONFIANCE, TAUX_ECHANTILLONNAGE);
     }
 }
