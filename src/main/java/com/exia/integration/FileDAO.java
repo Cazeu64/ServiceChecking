@@ -5,20 +5,19 @@
  */
 package com.exia.integration;
 
-import com.exia.util.TextFile;
 import java.util.List;
 
 /**
  *
  * @author Guillaume-PC
  */
-public interface TextFileDAO 
+public interface FileDAO 
 {
-    TextFile add(TextFile textfile);
+    File add(File file);
     
-    TextFile delete(Long id);
+    File delete(Long id);
     
-    TextFile find(Long id);
+    File find(Long id);
     
-    List<TextFile> getAllStoredTextFiles();
+    List<File> getAllStoredFiles();
 }

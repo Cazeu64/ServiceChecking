@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class File implements Serializable
 {
+    private long id;
     private String name;
     private String content;
     private String extract = "";
@@ -58,11 +59,17 @@ public class File implements Serializable
         this.name = name;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() 
     {
         return content + "|" + name + "|" + key;
     }
-    
-    
 }

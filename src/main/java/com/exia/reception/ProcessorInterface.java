@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.exia.util;
+package com.exia.reception;
+
+import com.exia.integration.File;
 
 /**
  *
  * @author Guillaume-PC
  */
-public enum ValidationStatus 
+public interface ProcessorInterface
 {
-    VALIDE, INVALIDE, PENDING
+    public Boolean processChecking(File file);
 }
