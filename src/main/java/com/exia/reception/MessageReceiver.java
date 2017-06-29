@@ -72,25 +72,4 @@ public class MessageReceiver implements MessageListener {
             Logger.getLogger(MessageReceiver.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
-    
-    public List<File> createFilesFromSring(String fileString)
-    {
-        List<File> files = new ArrayList<File>();
-        
-        String[] tabString = fileString.split("\\&");
-
-        for(String l : tabString)
-        {
-            String[] tabStringAttributs = l.split("\\|");
-                   
-            File fileRet = new File();
-            fileRet.setContent(tabStringAttributs[0]);
-            fileRet.setName(tabStringAttributs[1]);
-            fileRet.setKey(tabStringAttributs[2]);
-            fileRet.setTokenUser(tabStringAttributs[3]);
-            files.add(fileRet);
-        }
-        
-        return files;
-    }
 }
