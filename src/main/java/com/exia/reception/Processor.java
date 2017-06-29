@@ -7,6 +7,7 @@ package com.exia.reception;
 
 import com.exia.integration.File;
 import com.traitement.persistance.dll.catalogmngmt.CatalogManagerService;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -20,21 +21,20 @@ public class Processor implements ProcessorInterface {
     @Inject
     private CatalogManagerService catalogManagerService;
     
-    public float TAUX_CONFIANCE = (float) 0.8;
-    public float TAUX_ECHANTILLONNAGE = (float) 0.8;
+    public float TAUX_CONFIANCE = (float) 0.4;
+    public float TAUX_ECHANTILLONNAGE = (float) 0.1;
 
     public Processor() {
 
     }
     
     @Override
-    public Boolean processChecking(File file)
+    public Boolean processChecking(List<File> files)
     {
         //Démarrer le code de validation ici
         
-        System.out.println("Début de la vérification");
-        //Reconstitution de l'objet File
-        
-        return catalogManagerService.checkFile(file, TAUX_CONFIANCE, TAUX_ECHANTILLONNAGE);
+        System.out.println("Début de la vérification, Clef : " + files.get(0).getKey());
+
+        return catalogManagerService.checkFile(files, TAUX_CONFIANCE, TAUX_ECHANTILLONNAGE);
     }
 }

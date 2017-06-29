@@ -16,23 +16,11 @@ public class File implements Serializable
     private long id;
     private String name;
     private String content;
-    private String extract = "";
     private String key;
+    private String tokenUser;
 
     public String getContent() {
         return content;
-    }
-
-    public String getExtract() {
-        if(extract.equals(""))
-        {
-            //Calculer l'extrait
-            return extract;
-        }
-        else
-        {
-            return extract;
-        }
     }
 
     public String getKey() {
@@ -47,8 +35,12 @@ public class File implements Serializable
         this.content = content;
     }
 
-    public void setExtract(String extract) {
-        this.extract = extract;
+    public String getTokenUser() {
+        return tokenUser;
+    }
+
+    public void setTokenUser(String tokenUser) {
+        this.tokenUser = tokenUser;
     }
 
     public void setKey(String key) {
@@ -70,6 +62,6 @@ public class File implements Serializable
     @Override
     public String toString() 
     {
-        return content + "|" + name + "|" + key;
+        return content + "|" + name + "|" + key + "|" + tokenUser;
     }
 }

@@ -2,4 +2,5 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
     <system systemId="http://localhost:8080/ReceiveTextFile/ReceiveNewRequest?WSDL" uri="wsdl/localhost_8080/ReceiveTextFile/ReceiveNewRequest.wsdl"/>
     <system systemId="http://localhost:8080/ReceiveTextFile/ReceiveNewRequest?xsd=1" uri="wsdl/localhost_8080/ReceiveTextFile/ReceiveNewRequest.xsd_1.xsd"/>
+    <system systemId="http://10.64.128.64/Validation/Service.svc?singleWsdl" uri="wsdl/10.64.128.64/Validation/Service.svc.singlewsdl.wsdl"/>
 </catalog>

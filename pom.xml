@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.6.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.antlr</artifactId>
             <version>2.6.1-RC1</version>
@@ -148,6 +153,26 @@
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <version>2.3</version>
                 <!-- ICI -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>10.64.128.64/Validation/Service.svc.singlewsdl.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>com.exia.validation</packageName>
+                            <vmArgs>
+                                <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+                            </vmArgs>
+                            <wsdlLocation>http://10.64.128.64/Validation/Service.svc?singleWsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/Service.svc.singlewsdl.stale</staleFile>
+                        </configuration>
+                        <id>wsimport-generate-Service.svc.singlewsdl</id>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>javax.xml</groupId>

@@ -5,9 +5,10 @@
 
 package com.traitement.persistance.dll.catalogmngmt;
 
-
-
 import com.exia.integration.File;
+import com.exia.validation.ArrayOfstring;
+import com.exia.validation.IValidations;
+import com.exia.validation.Validations;
 import com.traitement.persistance.catalog.Result;
 import com.traitement.persistance.catalog.Word;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.xml.ws.WebServiceRef;
 
 /**
  *
@@ -44,9 +46,9 @@ public class CatalogManagerServiceBean implements CatalogManagerService {
     @EJB
     private ResultManagerServiceBean resultManager;
     
-    //Liste chargée lors de l'instanciation
-    private List<String> listWords;
-    
+    @WebServiceRef(Validations.class)
+    private IValidations validation;
+
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX = 
     Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     
@@ -72,54 +74,122 @@ public class CatalogManagerServiceBean implements CatalogManagerService {
     }
 
     @Override
-    public Boolean checkFile(File file, float tauxC, float tauxE)
+    public Boolean checkFile(List<File> files, float tauxC, float tauxE)
     {
-        //Recupérer echant
-        int count = 0;
+        boolean isValidKey = false;
+        float sumTauxReel = 0;
+        List<String> listEmail = new ArrayList<String>();
         
-        List<Word> echantillon = getEchantillonFromFile(file, tauxE);
+        if(ListeWords.getInstance().getListeWords().size() <= 1)
+            ListeWords.getInstance().setListeWords(wordManager.getAllWords());
 
-        if(listWords == null){
-            System.out.println("Chargement de la liste de mots");
-            listWords = wordManager.getAllWords();
-        }
-        
-        for(Word w :  echantillon){
-           if(listWords.contains(w.getWord())){
-               count++;
-           }
-           else
-               System.out.println("Non trouvé batard de ta soeur : " + w.getWord());
-        }
-        
-        System.out.println("Nombre de mot trouvés : "+count);
-        //ratio de mots trouvés en fr sur le nombre de mots dans la liste
-        Float ratio = Float.valueOf(count) / Float.valueOf(echantillon.size()) ;
-        System.out.println("Ratio mot trouvé / nbr de mots dans echantillon : "+ratio.toString());
-        float tauxReel = ratio * tauxC;
-        System.out.println("Taux de confiance reel :"+ tauxReel);
-
-        if(tauxReel >= tauxC)
+        for(File file : files)
         {
-            /* CREATE RESULT */
-            Result result = new Result();
-            result.setFile(file.getName());
-            result.setEchantillon(convertToString(echantillon));
-            result.setKeyUsed(file.getKey());
-            result.setTauxE(tauxE);
-            result.setTauxR(tauxReel);
+            //Recupérer echant
+            int count = 0;
 
-            resultManager.saveResult(result);
+            List<Word> echantillon = getEchantillonFromFile(file, tauxE);
+
+            for(Word w :  echantillon){
+               if(ListeWords.getInstance().getListeWords().contains(w.getWord())){
+                   count++;
+               }
+            }
+            
+            Float ratio = Float.valueOf(count) / Float.valueOf(echantillon.size()) ;
+            float tauxReel = ratio;//* tauxC;
+            
+            if(tauxReel > sumTauxReel)
+                sumTauxReel = tauxReel;
+
+            //Enregistrement des resultats en base
+            if(tauxReel >= tauxC)
+            {
+                isValidKey = true;
+                
+                listEmail.addAll(findEmails(file.getContent()));
+                
+                for(String e : listEmail)
+                {
+                    System.out.println("Email : " + e);
+                }
+                
+                /* CREATE RESULT */
+                Result result = new Result();
+                result.setFile(file.getName());
+                result.setEchantillon(convertToString(echantillon));
+                result.setKeyUsed(file.getKey());
+                result.setTauxE(tauxE);
+                result.setTauxR(tauxReel);
+
+                resultManager.saveResult(result); 
+            }
+        }
+        
+        float moyTauxReel = sumTauxReel / files.size();
+
+        System.out.println("Taux de confiance : " + moyTauxReel);
+        
+        //Pour DEBUG
+        //sendToCCharp(files, moyTauxReel, listEmail);
+        
+        if(isValidKey)
+        {
+            System.out.println("Fichier trouvé : Clef = " + files.get(0).getKey());
             
             //Appel du webservice C#
-            //Retour : Mail, name, key, rapport
-            List<Word> listEmail = findEmails(file.getContent());
-            
-            //sendToCCharp(file.getName(), file.getKey(), file.getContent(), tauxReel, listEmail);
+            sendToCCharp(files, moyTauxReel, listEmail);
             return true;
         }
         
         return false;
+    }
+    
+    @Override
+    public void sendToCCharp(List<File> files, float tauxR, List<String> listMail)
+    {
+        ArrayOfstring listName = new ArrayOfstring();
+        ArrayOfstring listContent = new ArrayOfstring();
+        ArrayOfstring listMailAoS = new ArrayOfstring();
+        
+        listName.getString().addAll(getNameArrayString(files));
+        listContent.getString().addAll(getContentArrayString(files));
+        listMailAoS.getString().addAll(listMail);
+        
+        validation.responseVal(listName, 
+                files.get(0).getKey(), 
+                listContent, 
+                tauxR, 
+                listMailAoS, 
+                files.get(0).getTokenUser());
+        
+        //validation.responseVal(new ArrayOfstring(getNameArrayString(files)), files.get(0).getKey(), new ArrayOfstring(getContentArrayString(files)), tauxR, new ArrayOfstring((String[])listMail.toArray()), files.get(0).getTokenUser());
+
+        return;
+    }
+ 
+    public List<String> getNameArrayString(List<File> files)
+    {
+        List<String> nameArray = new ArrayList<String>();
+        
+        for(File f : files)
+        {
+            nameArray.add(f.getName());
+        }
+  
+        return nameArray;
+    }
+    
+    public List<String> getContentArrayString(List<File> files)
+    {
+        List<String> nameArray = new ArrayList<String>();
+        
+        for(File f : files)
+        {
+            nameArray.add(f.getContent());
+        }
+  
+        return nameArray;
     }
     
     public String convertToString(List<Word> l)
@@ -135,16 +205,12 @@ public class CatalogManagerServiceBean implements CatalogManagerService {
     }
     
     public List<Word> getEchantillonFromFile(File file, float tauxE){
-
-        System.out.println("getContent : "+ file.getContent());
         
         List<Word> list = fillListFromString(file.getContent());
-        
-        System.out.println("Taille liste mot : "+ list.size());
        
         Random randomGen = new Random();
         List<Word> e = new ArrayList<>();
-        int count = (int)(tauxE*list.size());
+        int count = (int)(tauxE*list.size()) + 1;
         
         for( int i = 0 ; i < count ; i++){
             int index = randomGen.nextInt(list.size());
@@ -167,22 +233,19 @@ public class CatalogManagerServiceBean implements CatalogManagerService {
             Word w = new Word();
             w.setWord(l);
             wordsList.add(w);
-            System.out.println(w.getWord());
         }
         return wordsList;
     }
     
     @Override
-    public List<Word>findEmails(String words){
+    public List<String> findEmails(String words){
         List<Word> ws = Word.fillListFromString(words);
-        List<Word> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
         String mail ="";
         for(Word wd : ws){
             mail = isMail(wd);
             if(!mail.equals("")){
-                Word m = new Word();
-                m.setWord(mail);
-                result.add(m);
+                result.add(mail);
             }
         }
         return result;

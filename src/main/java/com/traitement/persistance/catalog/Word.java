@@ -42,7 +42,6 @@ public class Word implements Serializable{
     
     public static List<Word> fillListFromString(String words){
         
-        System.out.println("String to list");
         words = words.trim();
         words = words.replaceAll(" ", "");
         String[] list = words.split(",");
@@ -51,7 +50,6 @@ public class Word implements Serializable{
             Word w = new Word();
             w.setWord(l);
             wordsList.add(w);
-            System.out.println(w.getWord());
         }
         return wordsList;
     }

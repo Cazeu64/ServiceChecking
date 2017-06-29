@@ -43,7 +43,6 @@ public class ResultManagerServiceBean {
     */
     public Result saveResult(Result r){      
         em.persist(r);
-        System.out.println("Result created : " + r.toString());
         return r;
     }
 }

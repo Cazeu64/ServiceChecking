@@ -8,7 +8,6 @@ package com.traitement.persistance.dll.catalogmngmt;
 
 import com.exia.integration.File;
 import com.traitement.persistance.catalog.Result;
-import com.traitement.persistance.catalog.Word;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -22,9 +21,11 @@ public interface CatalogManagerService {
 
     public Result createResult(String file, String echantillon, String key, Float tauxE, Float tauxC);
 
-    public Boolean checkFile(File file, float tauxC, float tauxE);
+    public Boolean checkFile(List<File> files, float tauxC, float tauxE);
     
     public List<String> getAllWords();
     
-    public List<Word>findEmails(String words);
+    public List<String>findEmails(String words);
+    
+    public void sendToCCharp(List<File> files, float tauxR, List<String> listMail);
 }

@@ -6,6 +6,7 @@
 package com.exia.reception;
 
 import com.exia.integration.File;
+import java.util.List;
 
 /**
  *
@@ -13,5 +14,5 @@ import com.exia.integration.File;
  */
 public interface ProcessorInterface
 {
-    public Boolean processChecking(File file);
+    public Boolean processChecking(List<File> files);
 }

@@ -6,6 +6,11 @@
 package com.exia.reception;
 
 import com.exia.integration.File;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
@@ -37,35 +42,55 @@ public class MessageReceiver implements MessageListener {
     {
         try 
         {
-            System.out.println("Message reçu : " + message.getBody(String.class));
             String fileTxt = message.getBody(String.class);
 
-            if(processor.processChecking(createFileFromSring(fileTxt)))
+            ObjectMapper mapper = new ObjectMapper();
+            System.out.println("======================================");
+            System.out.println("JSON recu : " + fileTxt);
+            List<File> files = mapper.readValue(fileTxt, new TypeReference<List<File>>(){});
+            
+            //Solution avec Json
+            if(processor.processChecking(files))
             {
                 //Stoper tous les test sur ce fichier, clef trouvé
                 
             }
+
+            //Solution sans JSON
+            /*if(processor.processChecking(createFilesFromSring(fileTxt)))
+            {
+                //Stoper tous les test sur ce fichier, clef trouvé
+                
+            }*/
         } 
         catch (JMSException ex) 
+        {
+            Logger.getLogger(MessageReceiver.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex) 
         {
             Logger.getLogger(MessageReceiver.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
     
-    public File createFileFromSring(String fileString)
+    public List<File> createFilesFromSring(String fileString)
     {
-        String[] tabString = fileString.split("\\|");
+        List<File> files = new ArrayList<File>();
+        
+        String[] tabString = fileString.split("\\&");
 
         for(String l : tabString)
         {
-            System.out.println("Split : " + l);
+            String[] tabStringAttributs = l.split("\\|");
+                   
+            File fileRet = new File();
+            fileRet.setContent(tabStringAttributs[0]);
+            fileRet.setName(tabStringAttributs[1]);
+            fileRet.setKey(tabStringAttributs[2]);
+            fileRet.setTokenUser(tabStringAttributs[3]);
+            files.add(fileRet);
         }
         
-        File fileRet = new File();
-        fileRet.setContent(tabString[0]);
-        fileRet.setName(tabString[1]);
-        fileRet.setKey(tabString[2]);
-        
-        return fileRet;
+        return files;
     }
 }
